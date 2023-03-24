@@ -12,7 +12,8 @@ Text Domain:  wpsst-display-product-tags
 Domain Path:  /languages
 */
 
-function display_product_tags($atts){
+function display_product_tags($atts)
+{
     ob_start();
 
     $args = array(
@@ -25,16 +26,54 @@ function display_product_tags($atts){
         'hide_empty' => 0
     );
     ?>
+    <style>
+        .product-tags {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 20px;
+        }
+
+        @media screen and (max-width: 767px) {
+            .product-tags {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .product-tag {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .product-tag a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        .product-tag img {
+            width: 100%;
+            height: auto;
+            max-width: 100px;
+        }
+
+        .product-tag span {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
     <ul class="product-tags">
         <?php
-        $tags = get_terms( $args );
-        foreach ( $tags as $tag ) :
-            $tag_link = get_tag_link( $tag->term_id );
+        $tags = get_terms($args);
+        foreach ($tags as $tag):
+            $tag_link = get_tag_link($tag->term_id);
             // $tag_image = z_taxonomy_image_url($tag->term_id); // تحديد الصورة للوسم
             ?>
             <li class="product-tag">
-                <a href="<?php echo esc_url( $tag_link ); ?>" title="<?php echo esc_attr( $tag->name ); ?>">
-                    <!-- <?php if(!empty($tag_image)) { ?><img src="<?php echo esc_url($tag_image); ?>" alt="<?php echo esc_attr( $tag->name ); ?>"><?php } ?> -->
+                <a href="<?php echo esc_url($tag_link); ?>" title="<?php echo esc_attr($tag->name); ?>">
+                    <!-- <?php if (!empty($tag_image)) { ?><img src="<?php echo esc_url($tag_image); ?>" alt="<?php echo esc_attr($tag->name); ?>"><?php } ?> -->
                     <?php echo $tag->name; ?>
                 </a>
             </li>
@@ -43,4 +82,4 @@ function display_product_tags($atts){
     <?php
     return ob_get_clean();
 }
-add_shortcode( 'display_product_tags', 'display_product_tags' );
+add_shortcode('display_product_tags', 'display_product_tags');
