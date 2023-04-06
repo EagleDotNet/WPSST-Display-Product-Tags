@@ -15,7 +15,6 @@ Domain Path:  /languages
 function display_product_tags($atts)
 {
     ob_start();
-
     $args = array(
         'taxonomy' => 'product_tag',
         'orderby' => 'name',
@@ -69,13 +68,19 @@ function display_product_tags($atts)
         $tags = get_terms($args);
         foreach ($tags as $tag):
             $tag_link = get_tag_link($tag->term_id);
-            $tag_image = get_term_meta($tag->term_id, 'product_tag_image', true);
             ?>
             <li class="product-tag">
                 <a href="<?php echo esc_url($tag_link); ?>" title="<?php echo esc_attr($tag->name); ?>">
-                    <?php if (!empty($tag_image)) { ?><img src="<?php echo esc_url($tag_image); ?>"
-                            alt="<?php echo esc_attr($tag->name); ?>"><?php } ?>
-                    <?php echo $tag->name; ?>
+                    <?php
+                    if (function_exists('cpti_get_term_image_url') && cpti_get_term_image_url($tag->term_id)) {
+                        ?>
+                        <img src="<?php echo cpti_get_term_image_url($tag->term_id); ?>"
+                            alt="<?php echo esc_attr($tag->name); ?>" />
+                        <?php
+                    } else {
+                        echo $tag->name;
+                    }
+                    ?>
                 </a>
             </li>
         <?php endforeach; ?>
