@@ -82,6 +82,13 @@ function display_product_tags($atts)
                     }
                     ?>
                 </a>
+                <?php
+                $image_url = plugin_dir_url(__FILE__) . 'assets/images/product-tag-' . $tag->term_id . '.png';
+                if (file_exists(str_replace('https:', $_SERVER['DOCUMENT_ROOT'], $image_url))):
+                    ?>
+                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($tag->name); ?>" />
+                <?php endif; ?>
+
             </li>
         <?php endforeach; ?>
     </ul>
