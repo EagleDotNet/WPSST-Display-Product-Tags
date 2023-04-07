@@ -1,35 +1,60 @@
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: -10px;
-    }
-
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -10px;
+  }
+  
+  .col-lg-3,
+  .col-md-3, 
+  .col-sm-6,
+  .col-xs-6 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 10px;
+  }
+  
+  
+  .tag-image {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  
+  .tag-image img {
+    display: block;
+    width: 100%;
+  }
+  
+  .tag-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  @media (max-width: 992px) { /* إذا كانت أقل من أو تساوي 992 بكسل، وهي حجم شاشات المحمول */
+    .col-lg-3,
     .col-md-3,
     .col-sm-6,
     .col-xs-6 {
-        padding: 10px;
+      flex: 0 0 50%;
+      max-width: 50%;
     }
-
-    .tag-image {
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 10px;
+  }
+  
+  @media (max-width: 768px) { /* إذا كانت أقل من أو تساوي 768 بكسل، وهي حجم الهواتف المحمولة */
+    .col-lg-3,
+    .col-md-3,
+    .col-sm-6,
+    .col-xs-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
     }
-
-    .tag-image img {
-        display: block;
-        width: 100%;
-    }
-
-    .tag-name {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 10px;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #fff;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-    }
+  }
+  
