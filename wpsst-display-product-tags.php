@@ -2,7 +2,7 @@
 /*
 Plugin Name:  WPSST Display Product Tags
 Plugin URI:   https://www.syriasmart.net
-Description:  Display product tags with shorcode [display_product_tags]. 
+Description:  Display product tags with shorcode [ka_display_all_tags]. 
 Version:      1.0
 Author:       Syria Smart Technology 
 Author URI:   https://www.syriasmart.net
@@ -12,87 +12,93 @@ Text Domain:  wpsst-display-product-tags
 Domain Path:  /languages
 */
 
-function display_product_tags($atts)
+function ka_get_tag_image($term_id)
 {
-    ob_start();
-    $args = array(
-        'taxonomy' => 'product_tag',
-        'orderby' => 'name',
-        'show_count' => 0,
-        'pad_counts' => 0,
-        'hierarchical' => 1,
-        'title_li' => '',
-        'hide_empty' => 0
-    );
-    ?>
-    <style>
-        .product-tags {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-gap: 20px;
+    $tag_image_id = get_term_meta($term_id, 'tag_image_id', true);
+    if ($tag_image_id) {
+        $image_size = apply_filters('woocommerce_product_tag_thumbnail_size', 'woocommerce_thumbnail');
+        $image = wp_get_attachment_image_src($tag_image_id, $image_size);
+        if ($image) {
+            return $image[0];
         }
+    }
+    $products = get_posts(
+        array(
+            'post_type' => 'product',
+            'numberposts' => -1,
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'product_tag',
+                    'field' => 'slug',
+                    'terms' => $tag->slug,
+                ),
+            ),
+        )
+    );
+    if (!empty($products)) {
+        $product_count = count($products);
+        $random_index = rand(0, $product_count - 1);
+        $product_id = $products[$random_index]->ID;
+        $image_id = get_post_thumbnail_id($product_id);
+        if ($image_id) {
+            return wp_get_attachment_url($image_id);
+        }
+    }
+    return false;
+}
 
-        @media screen and (max-width: 767px) {
-            .product-tags {
-                grid-template-columns: repeat(2, 1fr);
+add_shortcode('ka_display_all_tags', 'ka_display_all_tags_func');
+
+function ka_display_all_tags_func()
+{
+    $tags = get_terms(
+        array(
+            'taxonomy' => 'product_tag',
+            'hide_empty' => false,
+        )
+    );
+    $output = '';
+    if (!empty($tags)) {
+        $output .= '<div class="row">';
+        foreach ($tags as $tag) {
+            $products = get_posts(
+                array(
+                    'post_type' => 'product',
+                    'numberposts' => -1,
+                    'tax_query' => array(
+                        array(
+                            'taxonomy' => 'product_tag',
+                            'field' => 'slug',
+                            'terms' => $tag->slug,
+                        ),
+                    ),
+                )
+            );
+            if (!empty($products)) {
+                $output .= '<div class="col-md-3 col-sm-6 col-xs-6">';
+                $output .= '<div class="tag-image">';
+                $output .= '<a href="' . get_term_link($tag) . '">';
+                $tag_image = ka_get_tag_image($tag->term_id);
+                if ($tag_image) {
+                    $output .= '<img src="' . esc_url(wp_get_attachment_url($tag_image)) . '" alt="' . $tag->name . '">';
+                } else {
+                    $product_id = $products[array_rand($products)]->ID;
+                    $image_url = get_the_post_thumbnail_url($product_id, 'woocommerce_thumbnail');
+                    if ($image_url) {
+                        $output .= '<img src="' . esc_url($image_url) . '" alt="' . $tag->name . '">';
+                    } else {
+                        $output .= '<img src="' . esc_url(ka_get_default_tag_image_url()) . '" alt="' . $tag->name . '">';
+                    }
+                }
+                $output .= '</a>';
+                $output .= '<div class="tag-name">' . $tag->name . '</div>';
+                $output .= '</div>';
+                $output .= '</div>';
             }
         }
-
-        .product-tag {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .product-tag a {
-            display: block;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-        }
-
-        .product-tag img {
-            width: 100%;
-            height: auto;
-            max-width: 100px;
-        }
-
-        .product-tag span {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-    </style>
-    <ul class="product-tags">
-        <?php
-        $tags = get_terms($args);
-        foreach ($tags as $tag):
-            $tag_link = get_tag_link($tag->term_id);
-            ?>
-            <li class="product-tag">
-                <a href="<?php echo esc_url($tag_link); ?>" title="<?php echo esc_attr($tag->name); ?>">
-                    <?php
-                    if (function_exists('cpti_get_term_image_url') && cpti_get_term_image_url($tag->term_id)) {
-                        ?>
-                        <img src="<?php echo cpti_get_term_image_url($tag->term_id); ?>"
-                            alt="<?php echo esc_attr($tag->name); ?>" />
-                        <?php
-                    } else {
-                        echo $tag->name;
-                    }
-                    ?>
-                </a>
-                <?php
-                $image_url = plugin_dir_url(__FILE__) . 'assets/images/product-tag-' . $tag->term_id . '.png';
-                if (file_exists(str_replace('https:', $_SERVER['DOCUMENT_ROOT'], $image_url))):
-                    ?>
-                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($tag->name); ?>" />
-                <?php endif; ?>
-
-            </li>
-        <?php endforeach; ?>
-    </ul>
-    <?php
-    return ob_get_clean();
+        $output .= '</div>';
+    }
+    wp_enqueue_style( 'plugin-name-style', plugin_dir_url( __FILE__ ) . 'assets/css/grid-style.css' );
+    return $output;
 }
-add_shortcode('display_product_tags', 'display_product_tags');
+?>
