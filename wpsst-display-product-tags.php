@@ -152,7 +152,7 @@ function ka_display_tags_slider_func()
             }
         }
         echo '</div>';
-        echo '<div class="swiper-pagination"></div>';
+        // echo '<div class="swiper-pagination"></div>';
         echo '<div class="swiper-button-prev"></div>';
         echo '<div class="swiper-button-next"></div>';
         echo '</div>';
